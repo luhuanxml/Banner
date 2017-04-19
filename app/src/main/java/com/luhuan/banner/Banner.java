@@ -2,6 +2,7 @@ package com.luhuan.banner;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
 
@@ -49,13 +52,19 @@ public class Banner extends ViewGroup {
     }
 
     //点击事件
-    OnBannerListener listener;
+    private OnBannerListener listener;
     //这里要给一个变量值判断用户按下后离开的瞬间是要滑动还是要点击图片
     // true  表示是点击事件  false  表示不是点击事件
     public boolean isclick;
 
     public void setBannarListener(OnBannerListener listener) {
         this.listener = listener;
+    }
+
+    private OnChangeDotColorListener dotColorListener;
+
+    public void setOnChangeDotColorListener(OnChangeDotColorListener dotColorListener){
+        this.dotColorListener=dotColorListener;
     }
 
     public Banner(Context context) {
@@ -103,20 +112,37 @@ public class Banner extends ViewGroup {
 
     private void auto() {
         if (isAuto) {
-            autoDisposable = Observable.interval(1000, interval, TimeUnit.MILLISECONDS)
+            autoDisposable = Observable.interval(100, interval, TimeUnit.MILLISECONDS)
                     .filter(new Predicate<Long>() {
                         @Override
                         public boolean test(@NonNull Long aLong) throws Exception {
                             return isAuto = true;
                         }
                     })
+                    //每次走一次就卡死，Only the original thread that created a view hierarchy can touch its views.
+                    //是因为刷新界面需要在UI线程中
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Consumer<Long>() {
                         @Override
                         public void accept(@NonNull Long aLong) throws Exception {
-                            if (++index >= childrenCount) {
+                            //最后一张图片 将会从第一张图片开始重新滑动
+                            if ((++index) >= childrenCount) {
                                 index = 0;
                             }
                             scrollTo(childWidth * index, 0);
+                            if (dotColorListener != null) {
+                                dotColorListener.onChangeDotColor(index);
+                            }
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(@NonNull Throwable throwable) throws Exception {
+                            Log.d(TAG, "accept: "+throwable.getMessage());
+                        }
+                    }, new Action() {
+                        @Override
+                        public void run() throws Exception {
+                            Log.d(TAG, "run: "+"完成了");
                         }
                     });
         }
@@ -200,7 +226,7 @@ public class Banner extends ViewGroup {
      * 可以利用scrollTo 方法滑动到该图片位置上
      *
      * @param event
-     * @return
+     * @return  true 告知事件已经完成
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -232,16 +258,20 @@ public class Banner extends ViewGroup {
                 if (isclick) {
                     listener.onClick(index);
                 } else {
-                    if (index <= 0) {
+                    if (index < 0) {
                         //此时已经滑动到了左边第一张图片
                         index = 0;
-                    } else if (index >= childrenCount - 1) {
+                    } else if (index > childrenCount - 1) {
                         //已经滑动到了最右边
                         index = childrenCount - 1;
                     }
+                    Log.d(TAG, "onTouchEvent: "+index);
                     int dx = index * childWidth - scollX;//抬起的时候要滑动的距离
                     scroller.startScroll(scollX, 0, dx, 0, 500);//替代 scrollTo(index*childWidth,0);
                     postInvalidate();//通知
+                    if (dotColorListener!=null){
+                        dotColorListener.onChangeDotColor(index);
+                    }
                 }
                 //手势滑动完了后抬起手的时候，开启自动轮播
                 startAuto();
@@ -273,7 +303,17 @@ public class Banner extends ViewGroup {
         }
     }
 
+    /**
+     * 图片点击事件
+     */
     public interface OnBannerListener {
         void onClick(int position);
+    }
+
+    /**
+     * dot跟随变换接口
+     */
+    public interface OnChangeDotColorListener{
+        void onChangeDotColor(int position);
     }
 }

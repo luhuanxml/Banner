@@ -3,17 +3,11 @@ package com.luhuan.banner;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -23,13 +17,14 @@ import io.reactivex.functions.Consumer;
 public class MainActivity extends AppCompatActivity {
 
     private Banner banner;
+    private BannerLayout bannerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        int screenWidth=Screen.getScreenWidth(this);
         banner = (Banner) findViewById(R.id.banner);
+        bannerLayout = (BannerLayout) findViewById(R.id.bannerframeLayout);
         Integer[] resImgs = {
                 R.mipmap.img01,
                 R.mipmap.img02,
@@ -42,24 +37,15 @@ public class MainActivity extends AppCompatActivity {
                 R.mipmap.img09
         };
 
+        //<--############################################直接使用banner###################################################-->
+
         /**
          * 添加本地图片资源的方式
          */
-        for (int i = 0; i < resImgs.length; i++) {
-            ImageView imageview=new ImageView(this);
-            imageview.setLayoutParams(new ViewGroup.LayoutParams(screenWidth, ViewGroup.LayoutParams.MATCH_PARENT));
-            imageview.setImageResource(resImgs[i]);
-            imageview.setScaleType(ImageView.ScaleType.FIT_XY);
-            banner.addView(imageview,i);
-        }
+        banner.addImageRes(Arrays.asList(resImgs));
         /**
          * 添加网络url图片资源的方式
          */
-//        List<String> list=new ArrayList<>();
-//        for (int i = 0; i < 9; i++) {
-//            list.add(""+i);
-//        }
-//        banner.addImageUrl(list);
         banner.setInterval(3000);
         banner.setBannarListener(new Banner.OnBannerListener() {
             @Override
@@ -70,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void accept(@NonNull Integer integer) throws Exception {
                                 Toast.makeText(MainActivity.this, integer+"", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(MainActivity.this,LoginActivity.class));
                             }
                         }, new Consumer<Throwable>() {
                             @Override
@@ -86,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 banner.startAuto();
-                finish();
             }
         });
         findViewById(R.id.stop).setOnClickListener(new View.OnClickListener() {
@@ -95,12 +79,16 @@ public class MainActivity extends AppCompatActivity {
                 banner.stopAuto();
             }
         });
+
+      //  <--#############################使用bannerFrameLayout#################################-->
+        bannerLayout.addImageRes(Arrays.asList(resImgs));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         banner.startAuto();
+        bannerLayout.startAuto();
     }
 
     @Override

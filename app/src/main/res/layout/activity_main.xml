@@ -25,5 +25,11 @@
         android:layout_height="wrap_content"
         android:text="停止轮播" />
 
+    <com.luhuan.banner.BannerLayout
+        android:id="@+id/bannerframeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="250dp">
+
+    </com.luhuan.banner.BannerLayout>
 
 </LinearLayout>
