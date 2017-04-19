@@ -2,7 +2,6 @@ package com.luhuan.banner;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,7 @@ import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
 
 /**
  * Created by 鲁欢 on 2017/4/19 0019.
@@ -38,6 +38,22 @@ public class Banner extends ViewGroup {
     boolean isAuto = true; //默认开启轮播图
     Disposable autoDisposable;//自动轮播订阅
 
+    int interval=2000;//自动轮播间隔时间 默认1000毫秒
+
+    public void setInterval(int interval_time){
+        interval=interval_time;
+    }
+
+    //点击事件
+    OnBannerListener listener;
+    //这里要给一个变量值判断用户按下后离开的瞬间是要滑动还是要点击图片
+    // true  表示是点击事件  false  表示不是点击事件
+    public boolean isclick;
+
+    public void setBannarListener(OnBannerListener listener) {
+        this.listener = listener;
+    }
+
     public Banner(Context context) {
         super(context);
         init();
@@ -57,19 +73,24 @@ public class Banner extends ViewGroup {
     //不要用构造器传入的content
     private void init() {
         scroller = new Scroller(getContext());
-        auto();
     }
 
-    private void auto(){
+    private void auto() {
         if (isAuto) {
-            autoDisposable = Observable.interval(100, 1000, TimeUnit.MILLISECONDS)
+            autoDisposable = Observable.interval(1000, interval, TimeUnit.MILLISECONDS)
+                    .filter(new Predicate<Long>() {
+                        @Override
+                        public boolean test(@NonNull Long aLong) throws Exception {
+                            return isAuto=true;
+                        }
+                    })
                     .subscribe(new Consumer<Long>() {
                         @Override
                         public void accept(@NonNull Long aLong) throws Exception {
-                            if (++index>=childrenCount){
-                                index=0;
+                            if (++index >= childrenCount) {
+                                index = 0;
                             }
-                            scrollTo(childWidth*index,0);
+                            scrollTo(childWidth * index, 0);
                         }
                     });
         }
@@ -95,7 +116,6 @@ public class Banner extends ViewGroup {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         //获得子视图的个数
         childrenCount = getChildCount();
-        Log.d(TAG, "onMeasure: " + childrenCount);
         if (childrenCount == 0) {
             setMeasuredDimension(0, 0);
         } else {
@@ -165,6 +185,7 @@ public class Banner extends ViewGroup {
                 if (!scroller.isFinished()) {
                     scroller.abortAnimation();
                 }
+                isclick = true;
                 //手按下的时候，关掉自动轮播让手来操作滑动
                 stopAuto();
                 x = (int) event.getX();
@@ -175,27 +196,33 @@ public class Banner extends ViewGroup {
                 int distance = moveX - x;
                 scrollBy(-distance, 0);
                 x = moveX;
+                if (distance!=0){
+                    isclick = false;
+                }
                 break;
             case MotionEvent.ACTION_UP://表示用户抬起的一瞬间
                 int scollX = getScrollX();
                 index = (scollX + childWidth / 2) / childWidth;
-                if (index <= 0) {
-                    //此时已经滑动到了左边第一张图片
-                    index = 0;
-                } else if (index >= childrenCount - 1) {
-                    //已经滑动到了最右边
-                    index = childrenCount - 1;
+                if (isclick) {
+                    listener.onClick(index);
+                } else {
+                    if (index <= 0) {
+                        //此时已经滑动到了左边第一张图片
+                        index = 0;
+                    } else if (index >= childrenCount - 1) {
+                        //已经滑动到了最右边
+                        index = childrenCount - 1;
+                    }
+                    int dx = index * childWidth - scollX;//抬起的时候要滑动的距离
+                    scroller.startScroll(scollX, 0, dx, 0, 500);//替代 scrollTo(index*childWidth,0);
+                    postInvalidate();//通知
                 }
-                int dx = index * childWidth - scollX;//抬起的时候要滑动的距离
-                scroller.startScroll(scollX, 0, dx, 0, 100);//替代 scrollTo(index*childWidth,0);
-                postInvalidate();//通知
                 //手势滑动完了后抬起手的时候，开启自动轮播
                 startAuto();
                 break;
             default:
                 break;
         }
-        Log.d(TAG, "onTouchEvent: " + index);
         return true;//告知ViewGroup的父View,已经处理好了该事件
     }
 
@@ -204,6 +231,9 @@ public class Banner extends ViewGroup {
      */
     public void startAuto() {
         isAuto = true;
+        if (autoDisposable != null && !autoDisposable.isDisposed()) {
+            autoDisposable.dispose();
+        }
         auto();
     }
 
@@ -212,8 +242,12 @@ public class Banner extends ViewGroup {
      */
     public void stopAuto() {
         isAuto = false;
-        if (autoDisposable!=null&&!autoDisposable.isDisposed()){
+        if (autoDisposable != null && !autoDisposable.isDisposed()) {
             autoDisposable.dispose();
         }
+    }
+
+    public interface OnBannerListener {
+        void onClick(int position);
     }
 }
