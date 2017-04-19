@@ -5,8 +5,12 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Scroller;
 
+import com.squareup.picasso.Picasso;
+
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -38,10 +42,10 @@ public class Banner extends ViewGroup {
     boolean isAuto = true; //默认开启轮播图
     Disposable autoDisposable;//自动轮播订阅
 
-    int interval=2000;//自动轮播间隔时间 默认1000毫秒
+    int interval = 2000;//自动轮播间隔时间 默认1000毫秒
 
-    public void setInterval(int interval_time){
-        interval=interval_time;
+    public void setInterval(int interval_time) {
+        interval = interval_time;
     }
 
     //点击事件
@@ -75,13 +79,35 @@ public class Banner extends ViewGroup {
         scroller = new Scroller(getContext());
     }
 
+    //简化添加view的过程，直接把图片资源放进来
+    public void addImageRes(List<Integer> list) {
+        for (Integer resId : list) {
+            ImageView imageview = new ImageView(getContext());
+            imageview.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            imageview.setImageResource(resId);
+            imageview.setScaleType(ImageView.ScaleType.FIT_XY);
+            addView(imageview);
+        }
+
+    }
+
+    public void addImageUrl(List<String> list) {
+        for (String imgUrl : list) {
+            ImageView imageview = new ImageView(getContext());
+            imageview.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            imageview.setScaleType(ImageView.ScaleType.FIT_XY);
+            Picasso.with(getContext()).load(imgUrl).placeholder(R.mipmap.ic_launcher).error(R.mipmap.ic_launcher).into(imageview);
+            addView(imageview);
+        }
+    }
+
     private void auto() {
         if (isAuto) {
             autoDisposable = Observable.interval(1000, interval, TimeUnit.MILLISECONDS)
                     .filter(new Predicate<Long>() {
                         @Override
                         public boolean test(@NonNull Long aLong) throws Exception {
-                            return isAuto=true;
+                            return isAuto = true;
                         }
                     })
                     .subscribe(new Consumer<Long>() {
@@ -196,7 +222,7 @@ public class Banner extends ViewGroup {
                 int distance = moveX - x;
                 scrollBy(-distance, 0);
                 x = moveX;
-                if (distance!=0){
+                if (distance != 0) {
                     isclick = false;
                 }
                 break;

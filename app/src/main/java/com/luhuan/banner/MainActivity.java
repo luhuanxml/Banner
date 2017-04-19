@@ -11,6 +11,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -26,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         int screenWidth=Screen.getScreenWidth(this);
         banner = (Banner) findViewById(R.id.banner);
-        int[] resImgs = {
+        Integer[] resImgs = {
                 R.mipmap.img01,
                 R.mipmap.img02,
                 R.mipmap.img03,
@@ -37,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
                 R.mipmap.img08,
                 R.mipmap.img09
         };
+
+        /**
+         * 添加本地图片资源的方式
+         */
         for (int i = 0; i < resImgs.length; i++) {
             ImageView imageview=new ImageView(this);
             imageview.setLayoutParams(new ViewGroup.LayoutParams(screenWidth, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -44,7 +52,15 @@ public class MainActivity extends AppCompatActivity {
             imageview.setScaleType(ImageView.ScaleType.FIT_XY);
             banner.addView(imageview,i);
         }
-        banner.setInterval(1000);
+        /**
+         * 添加网络url图片资源的方式
+         */
+//        List<String> list=new ArrayList<>();
+//        for (int i = 0; i < 9; i++) {
+//            list.add(""+i);
+//        }
+//        banner.addImageUrl(list);
+        banner.setInterval(3000);
         banner.setBannarListener(new Banner.OnBannerListener() {
             @Override
             public void onClick(int position) {
