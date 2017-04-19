@@ -56,17 +56,15 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
      */
     private void initBanner() {
         banner = new Banner(getContext());
-        LayoutParams layoutParams=new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         banner.setLayoutParams(layoutParams);
         banner.setOnChangeDotColorListener(this);
         banner.setBannarListener(new Banner.OnBannerListener() {
             @Override
             public void onClick(int position) {
-                Log.d(TAG, "onClick: "+position);
-                if (banerlayoutListener!=null){
+                Log.d(TAG, "onClick: " + position);
+                if (banerlayoutListener != null) {
                     banerlayoutListener.onBannerClick(position);
-                }else {
-                    throw new NullPointerException(OnBannerLayoutListener.class.getName()+"为空");
                 }
             }
         });
@@ -76,7 +74,7 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
     /**
      * 启动轮播
      */
-    public void startAuto(){
+    public void startAuto() {
         banner.startAuto();
     }
 
@@ -85,56 +83,63 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
      */
     private void initDotLayout() {
         linear = new LinearLayout(getContext());
-        LayoutParams layoutParams=new LayoutParams(LayoutParams.MATCH_PARENT,40);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, 40);
         linear.setLayoutParams(layoutParams);
         linear.setOrientation(LinearLayout.HORIZONTAL);
         linear.setGravity(Gravity.CENTER);
         linear.setBackgroundColor(Color.BLACK);
         addView(linear);
-        LayoutParams frameParams= (LayoutParams) linear.getLayoutParams();
-        frameParams.gravity=Gravity.BOTTOM;
+        LayoutParams frameParams = (LayoutParams) linear.getLayoutParams();
+        frameParams.gravity = Gravity.BOTTOM;
         linear.setLayoutParams(frameParams);
         linear.setAlpha(0.5f);
     }
 
     //添加轮播图 添加相应的dot个数
-    public void addImageRes(List<Integer> list){
-        for (int i = 0; i < list.size(); i++) {
-            ImageView imageview = new ImageView(getContext());
-            imageview.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            imageview.setImageResource(list.get(i));
-            imageview.setScaleType(ImageView.ScaleType.FIT_XY);
-            banner.addView(imageview);
-            addDots();
-        }
+    public void addImageRes(List<Integer> list) {
+        banner.addImageRes(list);
+        addDots(list.size());
     }
 
-    //添加dot
-    private void addDots(){
-        ImageView dot=new ImageView(getContext());
-        dot.setImageResource(R.drawable.orange_radius);
-        LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.setMargins(5,5,5,5);
-        dot.setLayoutParams(layoutParams);
-        dot.setImageResource(R.drawable.white_radius);
-        linear.addView(dot);
+    public void addImageUrl(List<String> list) {
+        banner.addImageUrl(list);
+        addDots(list.size());
+    }
+
+    /**
+     * 添加指示器
+     * @param count  指示器个数
+     */
+    private void addDots(int count) {
+        for (int i = 0; i < count; i++) {
+            ImageView dot = new ImageView(getContext());
+            dot.setImageResource(R.drawable.orange_radius);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.setMargins(5, 5, 5, 5);
+            dot.setLayoutParams(layoutParams);
+            dot.setImageResource(R.drawable.white_radius);
+            linear.addView(dot);
+        }
     }
 
     @Override
     public void onChangeDotColor(int position) {
-        Log.d("Banner", "onChangeDotColor: "+position);
-        int count=linear.getChildCount();
+        Log.d("Banner", "onChangeDotColor: " + position);
+        int count = linear.getChildCount();
         for (int i = 0; i < count; i++) {
-            ImageView dot= (ImageView) linear.getChildAt(i);
-                if (position==i){
-                    dot.setImageResource(R.drawable.orange_radius);
-                }else {
-                    dot.setImageResource(R.drawable.white_radius);
-                }
+            ImageView dot = (ImageView) linear.getChildAt(i);
+            if (position == i) {
+                dot.setImageResource(R.drawable.orange_radius);
+            } else {
+                dot.setImageResource(R.drawable.white_radius);
+            }
         }
     }
 
-    public interface OnBannerLayoutListener{
+    /**
+     * 对banner 图片点击事件的监听回调
+     */
+    public interface OnBannerLayoutListener {
         void onBannerClick(int bannerPosition);
     }
 }

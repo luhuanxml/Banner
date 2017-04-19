@@ -255,7 +255,7 @@ public class Banner extends ViewGroup {
             case MotionEvent.ACTION_UP://表示用户抬起的一瞬间
                 int scollX = getScrollX();
                 index = (scollX + childWidth / 2) / childWidth;
-                if (isclick) {
+                if (isclick&&listener!=null) {
                     listener.onClick(index);
                 } else {
                     if (index < 0) {
