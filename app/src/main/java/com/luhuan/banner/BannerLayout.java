@@ -79,6 +79,14 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
     }
 
     /**
+     * 关闭轮播
+     */
+    public void stopAuto() {
+        banner.stopAuto();
+    }
+
+
+    /**
      * 初始化底部圆点dot线性布局
      */
     private void initDotLayout() {

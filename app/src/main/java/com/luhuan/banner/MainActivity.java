@@ -112,5 +112,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         banner.stopAuto();
+        bannerLayout.stopAuto();
     }
 }
