@@ -27,6 +27,12 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
     private Banner banner;
     private LinearLayout linear;
 
+    private OnBannerLayoutListener banerlayoutListener;
+
+    public void setBanerlayoutListener(OnBannerLayoutListener banerlayoutListener) {
+        this.banerlayoutListener = banerlayoutListener;
+    }
+
     public BannerLayout(@NonNull Context context) {
         super(context);
         initBanner();
@@ -53,6 +59,17 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
         LayoutParams layoutParams=new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         banner.setLayoutParams(layoutParams);
         banner.setOnChangeDotColorListener(this);
+        banner.setBannarListener(new Banner.OnBannerListener() {
+            @Override
+            public void onClick(int position) {
+                Log.d(TAG, "onClick: "+position);
+                if (banerlayoutListener!=null){
+                    banerlayoutListener.onBannerClick(position);
+                }else {
+                    throw new NullPointerException(OnBannerLayoutListener.class.getName()+"为空");
+                }
+            }
+        });
         addView(banner);
     }
 
@@ -115,5 +132,9 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
                     dot.setImageResource(R.drawable.white_radius);
                 }
         }
+    }
+
+    public interface OnBannerLayoutListener{
+        void onBannerClick(int bannerPosition);
     }
 }

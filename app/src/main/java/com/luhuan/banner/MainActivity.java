@@ -82,6 +82,24 @@ public class MainActivity extends AppCompatActivity {
 
       //  <--#############################使用bannerFrameLayout#################################-->
         bannerLayout.addImageRes(Arrays.asList(resImgs));
+        bannerLayout.setBanerlayoutListener(new BannerLayout.OnBannerLayoutListener() {
+            @Override
+            public void onBannerClick(int bannerPosition) {
+                Log.d("luhuan", "onClick: "+bannerPosition);
+                Observable.just(bannerPosition).observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Consumer<Integer>() {
+                            @Override
+                            public void accept(@NonNull Integer integer) throws Exception {
+                                Toast.makeText(MainActivity.this, integer+"", Toast.LENGTH_SHORT).show();
+                            }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(@NonNull Throwable throwable) throws Exception {
+                                Log.d("luhuan", "accept: "+throwable.getMessage());
+                            }
+                        });
+            }
+        });
     }
 
     @Override
