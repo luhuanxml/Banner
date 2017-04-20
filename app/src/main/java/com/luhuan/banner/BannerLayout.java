@@ -125,7 +125,12 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             layoutParams.setMargins(5, 5, 5, 5);
             dot.setLayoutParams(layoutParams);
-            dot.setImageResource(R.drawable.white_radius);
+            //设置dot初始颜色，默认第一个为亮色
+            if (i==0){
+                dot.setImageResource(R.drawable.orange_radius);
+            }else {
+                dot.setImageResource(R.drawable.white_radius);
+            }
             linear.addView(dot);
         }
     }

@@ -45,7 +45,7 @@ public class Banner extends ViewGroup {
     boolean isAuto = true; //默认开启轮播图
     Disposable autoDisposable;//自动轮播订阅
 
-    int interval = 2000;//自动轮播间隔时间 默认1000毫秒
+    int interval = 3000;//自动轮播间隔时间 默认1000毫秒
 
     public void setInterval(int interval_time) {
         interval = interval_time;
@@ -112,7 +112,7 @@ public class Banner extends ViewGroup {
 
     private void auto() {
         if (isAuto) {
-            autoDisposable = Observable.interval(100, interval, TimeUnit.MILLISECONDS)
+            autoDisposable = Observable.interval(1000, interval, TimeUnit.MILLISECONDS)
                     .filter(new Predicate<Long>() {
                         @Override
                         public boolean test(@NonNull Long aLong) throws Exception {
@@ -121,16 +121,26 @@ public class Banner extends ViewGroup {
                     })
                     //每次走一次就卡死，Only the original thread that created a view hierarchy can touch its views.
                     //是因为刷新界面需要在UI线程中
+                    .subscribeOn(AndroidSchedulers.mainThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Consumer<Long>() {
                         @Override
                         public void accept(@NonNull Long aLong) throws Exception {
+                            /**
+                             *  ###### bug容易出现的地方######
+                             *  自动轮播之前要把动画结束掉，否则图片位置跟dot位置容易错位，
+                             */
+
+                            if (!scroller.isFinished()) {
+                                scroller.abortAnimation();
+                            }
                             //最后一张图片 将会从第一张图片开始重新滑动
                             if ((++index) >= childrenCount) {
                                 index = 0;
                             }
                             scrollTo(childWidth * index, 0);
                             if (dotColorListener != null) {
+                                Log.d(TAG, "accept: "+index);
                                 dotColorListener.onChangeDotColor(index);
                             }
                         }
@@ -267,9 +277,9 @@ public class Banner extends ViewGroup {
                     }
                     Log.d(TAG, "onTouchEvent: "+index);
                     int dx = index * childWidth - scollX;//抬起的时候要滑动的距离
-                    scroller.startScroll(scollX, 0, dx, 0, 500);//替代 scrollTo(index*childWidth,0);
+                    scroller.startScroll(scollX, 0, dx, 0);//替代 scrollTo(index*childWidth,0);
                     postInvalidate();//通知
-                    if (dotColorListener!=null){
+                    if (dotColorListener != null) {
                         dotColorListener.onChangeDotColor(index);
                     }
                 }

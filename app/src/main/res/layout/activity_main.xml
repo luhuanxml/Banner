@@ -6,13 +6,6 @@
     android:orientation="vertical"
     tools:context="com.luhuan.banner.MainActivity">
 
-    <com.luhuan.banner.Banner
-        android:id="@+id/banner"
-        android:layout_width="match_parent"
-        android:layout_height="200dp">
-
-    </com.luhuan.banner.Banner>
-
     <Button
         android:id="@+id/start"
         android:layout_width="match_parent"
@@ -27,6 +20,7 @@
 
     <com.luhuan.banner.BannerLayout
         android:id="@+id/bannerframeLayout"
+        android:background="@mipmap/left"
         android:layout_width="match_parent"
         android:layout_height="250dp">
 

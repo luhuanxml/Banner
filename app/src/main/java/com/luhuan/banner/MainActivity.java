@@ -22,7 +22,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        banner = (Banner) findViewById(R.id.banner);
         bannerLayout = (BannerLayout) findViewById(R.id.bannerframeLayout);
         Integer[] resImgs = {
                 R.mipmap.img01,
@@ -38,44 +37,44 @@ public class MainActivity extends AppCompatActivity {
 
         //<--############################################直接使用banner###################################################-->
 
-        /**
-         * 添加本地图片资源的方式
-         */
-        banner.addImageRes(Arrays.asList(resImgs));
-        /**
-         * 添加网络url图片资源的方式
-         */
-        banner.setInterval(3000);
-        banner.setBannarListener(new Banner.OnBannerListener() {
-            @Override
-            public void onClick(int position) {
-                Log.d("luhuan", "onClick: "+position);
-                Observable.just(position).observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Consumer<Integer>() {
-                            @Override
-                            public void accept(@NonNull Integer integer) throws Exception {
-                                Toast.makeText(MainActivity.this, integer+"", Toast.LENGTH_SHORT).show();
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(@NonNull Throwable throwable) throws Exception {
-                                Log.d("luhuan", "accept: "+throwable.getMessage());
-                            }
-                        });
-
-            }
-        });
+//        /**
+//         * 添加本地图片资源的方式
+//         */
+//        banner.addImageRes(Arrays.asList(resImgs));
+//        /**
+//         * 添加网络url图片资源的方式
+//         */
+//        banner.setInterval(3000);
+//        banner.setBannarListener(new Banner.OnBannerListener() {
+//            @Override
+//            public void onClick(int position) {
+//                Log.d("luhuan", "onClick: "+position);
+//                Observable.just(position).observeOn(AndroidSchedulers.mainThread())
+//                        .subscribe(new Consumer<Integer>() {
+//                            @Override
+//                            public void accept(@NonNull Integer integer) throws Exception {
+//                                Toast.makeText(MainActivity.this, integer+"", Toast.LENGTH_SHORT).show();
+//                            }
+//                        }, new Consumer<Throwable>() {
+//                            @Override
+//                            public void accept(@NonNull Throwable throwable) throws Exception {
+//                                Log.d("luhuan", "accept: "+throwable.getMessage());
+//                            }
+//                        });
+//
+//            }
+//        });
 
         findViewById(R.id.start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                banner.startAuto();
+                bannerLayout.startAuto();
             }
         });
         findViewById(R.id.stop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                banner.stopAuto();
+                bannerLayout.stopAuto();
             }
         });
 
@@ -104,14 +103,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        banner.startAuto();
+    //    banner.startAuto();
         bannerLayout.startAuto();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        banner.stopAuto();
+     //   banner.stopAuto();
         bannerLayout.stopAuto();
     }
 }
