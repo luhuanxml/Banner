@@ -1,11 +1,13 @@
 package com.luhuan.banner;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.content.res.TypedArray;
 import android.support.annotation.AttrRes;
+import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.Px;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -15,8 +17,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.util.List;
-
-import static android.R.string.no;
 
 /**
  * Created by 鲁欢 on 2017/4/19 0019.
@@ -37,20 +37,59 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
      * 不设置的情况下默认给出两个默认值
      */
     @DrawableRes
-    Integer lightDot;
-  //  Integer lightDot = R.drawable.orange_radius;
+    Integer lightDot = R.drawable.orange_radius;
     @DrawableRes
-    Integer normalDot;
-  //  Integer normalDot= R.drawable.white_radius;
+    Integer normalDot= R.drawable.white_radius;
 
+    /**
+     * 指示器条背景
+     */
+    @ColorRes
+    Integer linearbackgroud;
+    /**
+     * 指示器条透明度
+     */
+    Float linerAlpha;
+
+    /**
+     * 轮播时间间隔
+     */
+    int interval;//自动轮播间隔时间 默认1000毫秒
+    /**
+     * dot margin
+     */
+    int left =5,right=5,top=15,bottom=15;
+
+    /**
+     * 设置点亮dot样式
+     * @param lightDot 样式资源
+     */
     public void setLightDot(Integer lightDot) {
         this.lightDot = lightDot;
     }
 
+    /**
+     * 设置普通dot样式
+     * @param normalDot 样式资源
+     */
     public void setNormalDot(Integer normalDot) {
         this.normalDot = normalDot;
     }
 
+    /**
+     * dot与dot之间上下左右的间距Margin
+     */
+    public void setDotMargin(@Px int left_right,@Px int top_bottom){
+        left=left_right;
+        right=left_right;
+        top=top_bottom;
+        bottom=top_bottom;
+    }
+
+    /**
+     * 点击图片事件监听
+     * @param banerlayoutListener  点击事件监听
+     */
     public void setBanerlayoutListener(OnBannerLayoutListener banerlayoutListener) {
         this.banerlayoutListener = banerlayoutListener;
     }
@@ -63,14 +102,31 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
 
     public BannerLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        getArrs(context,attrs);
         initBanner();
         initDotLayout();
     }
 
     public BannerLayout(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        getArrs(context,attrs);
         initBanner();
         initDotLayout();
+    }
+
+    /**
+     * 自定义控件加属性
+     */
+    private void getArrs(@NonNull Context context, @Nullable AttributeSet attrs){
+        TypedArray typedArray=context.obtainStyledAttributes(attrs,R.styleable.BannerLayout);
+        left=typedArray.getInteger(R.styleable.BannerLayout_dot_marginleft,5);
+        right=typedArray.getInteger(R.styleable.BannerLayout_dot_marginright,5);
+        top=typedArray.getInteger(R.styleable.BannerLayout_dot_margintop,15);
+        bottom=typedArray.getInteger(R.styleable.BannerLayout_dot_marginbottom,15);
+        linearbackgroud=typedArray.getResourceId(R.styleable.BannerLayout_linear_background,android.R.color.black);
+        linerAlpha=typedArray.getFloat(R.styleable.BannerLayout_linear_alpha,0.5f);
+        interval=typedArray.getInteger(R.styleable.BannerLayout_interval,3000);
+        typedArray.recycle();
     }
 
     /**
@@ -90,6 +146,7 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
                 }
             }
         });
+        banner.setInterval(interval);
         addView(banner);
     }
 
@@ -108,7 +165,8 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
     }
 
     public void setInterval(int interval_time) {
-        banner.setInterval(interval_time);
+        interval=interval_time;
+        banner.setInterval(interval);
     }
 
 
@@ -117,16 +175,17 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
      */
     private void initDotLayout() {
         linear = new LinearLayout(getContext());
-        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, 40);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         linear.setLayoutParams(layoutParams);
         linear.setOrientation(LinearLayout.HORIZONTAL);
         linear.setGravity(Gravity.CENTER);
-        linear.setBackgroundColor(Color.BLACK);
+        Log.d(TAG, "initDotLayout: "+linearbackgroud);
+        linear.setBackgroundResource(linearbackgroud);
         addView(linear);
         LayoutParams frameParams = (LayoutParams) linear.getLayoutParams();
         frameParams.gravity = Gravity.BOTTOM;
         linear.setLayoutParams(frameParams);
-        linear.setAlpha(0.5f);
+        linear.setAlpha(linerAlpha);
     }
 
     //添加轮播图 添加相应的dot个数
@@ -148,7 +207,7 @@ public class BannerLayout extends FrameLayout implements Banner.OnChangeDotColor
         for (int i = 0; i < count; i++) {
             ImageView dot = new ImageView(getContext());
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.setMargins(5, 5, 5, 5);
+            layoutParams.setMargins(left, top, right,bottom);
             dot.setLayoutParams(layoutParams);
             //设置dot初始颜色，默认第一个为亮色
             if (i==0){

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BannerLayout">
+        <attr name="dot_marginleft" format="integer"/>
+        <attr name="dot_marginright" format="integer"/>
+        <attr name="dot_margintop" format="integer"/>
+        <attr name="dot_marginbottom" format="integer"/>
+        <attr name="light_dot_src" format="reference"/>
+        <attr name="normal_dot_src" format="reference"/>
+        <attr name="linear_background" format="color|reference"/>
+        <attr name="linear_alpha" format="float"/>
+        <attr name="interval" format="integer"/>
+    </declare-styleable>
+</resources>

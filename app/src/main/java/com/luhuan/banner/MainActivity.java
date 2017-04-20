@@ -79,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
       //  <--#############################使用bannerFrameLayout#################################-->
-        bannerLayout.setLightDot(R.drawable.white_radius);
-        bannerLayout.setNormalDot(R.drawable.orange_radius);
+//        bannerLayout.setLightDot(R.drawable.white_radius);
+//        bannerLayout.setNormalDot(R.drawable.orange_radius);
+//        bannerLayout.setDotMargin(10,100);
         bannerLayout.addImageRes(Arrays.asList(resImgs));
-        bannerLayout.setInterval(3000);
         bannerLayout.setBanerlayoutListener(new BannerLayout.OnBannerLayoutListener() {
             @Override
             public void onBannerClick(int bannerPosition) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:banner="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -20,9 +21,16 @@
 
     <com.luhuan.banner.BannerLayout
         android:id="@+id/bannerframeLayout"
-        android:background="@mipmap/left"
         android:layout_width="match_parent"
-        android:layout_height="250dp">
+        android:layout_height="250dp"
+        banner:dot_marginbottom="15"
+        banner:dot_marginleft="10"
+        banner:dot_marginright="10"
+        banner:dot_margintop="15"
+        banner:light_dot_src="@drawable/orange_radius"
+        banner:interval="1000"
+        banner:linear_background="@color/colorAccent"
+        banner:normal_dot_src="@drawable/white_radius">
 
     </com.luhuan.banner.BannerLayout>
 
