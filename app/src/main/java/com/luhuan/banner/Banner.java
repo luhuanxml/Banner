@@ -112,7 +112,8 @@ public class Banner extends ViewGroup {
 
     private void auto() {
         if (isAuto) {
-            autoDisposable = Observable.interval(1000, interval, TimeUnit.MILLISECONDS)
+            //这里等待值也设置为interval，因为等待值可以看作第一张图片跳到第二张图片的时间
+            autoDisposable = Observable.interval(interval, interval, TimeUnit.MILLISECONDS)
                     .filter(new Predicate<Long>() {
                         @Override
                         public boolean test(@NonNull Long aLong) throws Exception {
